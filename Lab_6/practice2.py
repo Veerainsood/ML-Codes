@@ -27,15 +27,15 @@ class Generator(torch.nn.Module):
     def __init__(self,latent_dim, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.predictor = torch.nn.Sequential(
-            torch.nn.ConvTranspose2d(latent_dim,16,kernel_size=4,stride=2), # 4
+            torch.nn.ConvTranspose2d(latent_dim,16,kernel_size=4,stride=2), # (n-1)*stride + f + outputPad -> (1-1)*2 + 4 + 0
             torch.nn.BatchNorm2d(16),
             torch.nn.ReLU(),
 
-            torch.nn.ConvTranspose2d(16,8,kernel_size=7,stride=2), # (3)*2 + 7
+            torch.nn.ConvTranspose2d(16,8,kernel_size=7,stride=2), # (4-1)*2 + 7
             torch.nn.BatchNorm2d(8),
             torch.nn.ReLU(),
 
-            torch.nn.ConvTranspose2d(8,1,kernel_size=4,stride=2), # (12)*2 + 4 = 28
+            torch.nn.ConvTranspose2d(8,1,kernel_size=4,stride=2), # (13-1)*2 + 4 = 28
             torch.nn.Tanh(),
         )
 
@@ -90,7 +90,7 @@ for epoch in range(epochs):
         batch_size = label.shape[0]
         generated = gen(torch.randn((batch_size,latent_dim,1,1)))
         label = (torch.ones(batch_size) * 0.1)
-        fakeLabels = des(generated.detach()).view(-1)
+        fakeLabels = des(generated.detach()).view(-1) # it should categorise fakes as 0
         fakeloss = torch.nn.functional.binary_cross_entropy(fakeLabels,label,reduction='sum')
         des_loss = fakeloss + real_loss
 

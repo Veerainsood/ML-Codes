@@ -100,7 +100,7 @@ t.save(model.state_dict(),"model.pth")
 
 correctPred = 0
 totalPred = 0
-for dataIndx , (image,labels) in tq.tqdm(enumerate(train_loader),total=len(test_loader),desc=f"Epoch [{epoch}/{epochs}]:"):
+for dataIndx , (image,labels) in tq.tqdm(enumerate(test_loader),total=len(test_loader),desc=f"Epoch [{epoch}/{epochs}]:"):
 
     y_pred = model(image)
 

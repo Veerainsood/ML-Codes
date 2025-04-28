@@ -51,42 +51,30 @@ class Model(t.nn.Module):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.Conv1 = t.nn.Conv2d(3,128,kernel_size=3,padding=1) 
-        self.Conv2 = t.nn.Conv2d(128,256,kernel_size=3,stride=2,padding=1) 
-        self.Conv3 = t.nn.Conv2d(256,256,kernel_size=3,padding=1) 
-        self.Conv4 = t.nn.Conv2d(256,256,kernel_size=3,stride=2,padding=1) 
-        self.Conv5 = t.nn.Conv2d(256,256,kernel_size=3,padding=1) 
-        self.Conv6 = t.nn.Conv2d(256,256,kernel_size=3,stride=2,padding=1) 
-        self.Lin1  = t.nn.Linear(256*8*8,128)
-        self.Lin2  = t.nn.Linear(128,64)
-        self.Lin3  = t.nn.Linear(64,32)
-        self.Lin4  = t.nn.Linear(32,10)
+        self.Conv1 = t.nn.Conv2d(3,8,kernel_size=4,stride=2,padding=1)#114
+        self.Conv2 = t.nn.Conv2d(8,64,kernel_size=4,stride=2,padding=1)#54
+        self.Conv3 = t.nn.Conv2d(64,128,kernel_size=4,stride=2,padding=1)#28
+        self.Lin1  = t.nn.Linear(128*28*28,64)
+        self.Lin2  = t.nn.Linear(64,32)
+        self.Lin3  = t.nn.Linear(32,10)
         self.relu  = t.nn.ReLU()
-        self.bn1   = t.nn.BatchNorm2d(128)
-        self.bn2   = t.nn.BatchNorm2d(256)
-        self.bn3   = t.nn.BatchNorm2d(256)
-        self.bn4   = t.nn.BatchNorm2d(256)
-        self.bn5   = t.nn.BatchNorm2d(256)
-
+        self.bn1   = t.nn.BatchNorm2d(8)
+        self.bn2   = t.nn.BatchNorm2d(64)
+        self.bn3   = t.nn.BatchNorm2d(128)
 
     def forward(self,x):
         x = self.relu(self.bn1(self.Conv1(x)))
         x = self.relu(self.bn2(self.Conv2(x)))
         x = self.relu(self.bn3(self.Conv3(x)))
-        x = self.relu(self.bn4(self.Conv4(x)))
-        x = self.relu(self.bn5(self.Conv5(x)))
-        x = self.relu(self.Conv6(x))
         x = x.view(x.shape[0],-1)
         x = self.Lin1(x)
         x = self.Lin2(x)
         x = self.Lin3(x)
-        x = self.Lin4(x)
-
         return x
 
 
 model = Model()
-model.load_state_dict(t.load("q_3_model.pth",map_location='cpu'))
+# model.load_state_dict(t.load("q_3_model.pth",map_location='cpu'))
 model.to(device=device)
 lr = 1e-5
 

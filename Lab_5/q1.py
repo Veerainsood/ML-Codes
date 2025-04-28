@@ -12,7 +12,7 @@ transform = transforms.Compose(
 )
 # https://colab.research.google.com/drive/1FVX3Skws0YstOgVFbowT87DH_JPklogq
 
-train_set = datasets.MNIST(root='../Lab_3/Datasets',train=True,transform=transform,download=False)
+train_set = datasets.MNIST(root='../Lab_3/Datasets',train=True,transform=transform,download=True)
 
 test_set = datasets.MNIST(root='../Lab_3/Datasets',train=False,transform=transform,download=False)
 
@@ -82,7 +82,7 @@ class Model(nn.Module):
 
     
 model = Model()
-# model.load_state_dict(t.load("q_1_model.pth"))
+model.load_state_dict(t.load("q_1_model.pth"))
 lr = 1e-3
 
 epochs = 15
@@ -93,41 +93,41 @@ device = t.device('cuda' if t.cuda.is_available() else 'cpu')
 
 mse = t.nn.MSELoss()
 cel = t.nn.CrossEntropyLoss()
-for epoch in range(epochs):
-    lossval = 0
-    correctPred = 0
-    totalPred = 0
-    for dataIndx , (image,labels) in prettyprint(enumerate(train_loader),total=len(train_loader),desc=f"Epoch [{epoch}/{epochs}]:"):
+# for epoch in range(epochs):
+#     lossval = 0
+#     correctPred = 0
+#     totalPred = 0
+#     for dataIndx , (image,labels) in prettyprint(enumerate(train_loader),total=len(train_loader),desc=f"Epoch [{epoch}/{epochs}]:"):
         
-        image,labels = image.to(device),labels.to(device)
+#         image,labels = image.to(device),labels.to(device)
 
-        optimizer.zero_grad()
+#         optimizer.zero_grad()
 
-        decoded,y_pred = model(image)
+#         decoded,y_pred = model(image)
 
-        mseloss = mse(decoded,image)
-        cesloss = cel(y_pred,labels.long())
+#         mseloss = mse(decoded,image)
+#         cesloss = cel(y_pred,labels.long())
 
-        loss = mseloss + cesloss
+#         loss = mseloss + cesloss
 
-        lossval += cesloss.item() + mseloss.item()
+#         lossval += cesloss.item() + mseloss.item()
 
-        correctPred += t.sum( 
-            t.argmax(y_pred,dim=1) == labels
-        )
+#         correctPred += t.sum( 
+#             t.argmax(y_pred,dim=1) == labels
+#         )
 
-        totalPred += len(labels)
+#         totalPred += len(labels)
 
-        loss.backward() # computes gradients
+#         loss.backward() # computes gradients
 
-        optimizer.step() # applies the grads..
+#         optimizer.step() # applies the grads..
 
-        lossval += loss.item()
+#         lossval += loss.item()
         
-    print(f"Loss: {lossval}")
-    print(f"Accuracy : {correctPred/totalPred}")
+#     print(f"Loss: {lossval}")
+#     print(f"Accuracy : {correctPred/totalPred}")
 
-t.save(model.state_dict(),"q_1_model.pth")
+# t.save(model.state_dict(),"q_1_model.pth")
 
 # correctPred = 0
 # totalPred = 0
@@ -159,6 +159,7 @@ actual = []
 fig , axs = plt.subplots(3,2,figsize=(10,4))
 for i in range(3):
     (images,labels) = next(iter(test_loader))
+    # print(images[i].shape,images[i].unsqueeze(0).shape)
     (gen,pred) = model(images[i].unsqueeze(0))
     generated.append( 
         (
@@ -171,13 +172,13 @@ for i in range(3):
         )
     )
     axs[i,0].imshow(actual[i],cmap="Greys")
-    axs[i,0].title(labels[i].item())
+    axs[i,0].set_title(labels[i].item())
     axs[i,1].imshow(generated[i],cmap="Greys")
-    axs[i,1].title(f"predicted:{(t.argmax(pred)).item()}")
+    axs[i,1].set_title(f"predicted:{(t.argmax(pred)).item()}")
     # axs[i,0].axis("off")
     # axs[i,1].axis("off")
 
 generated = np.array(generated)
 actual = np.array(actual)
     
-plt.show()
+plt.savefig("fig.png")

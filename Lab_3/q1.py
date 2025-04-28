@@ -21,7 +21,7 @@ train_idx = t.randperm( len(datset) ) [:trainSize]
 
 # train index -> tensor of length trainSize with random indices throughout datset...
 
-test_indx = train_idx[ t.randperm(trainSize)[:1000] ] # this line aims to pic up few indices from train_index
+test_indx = train_idx[ t.randperm(trainSize)[:testSize] ] # this line aims to pic up few indices from train_index
 
 train_idx = train_idx[~t.isin(train_idx,test_indx)]
 
@@ -54,7 +54,8 @@ class Model(t.nn.Module):
 
     def forward(self,x):
         x = self.res(x)
-        x = x.view(x.shape[0],-1)
+        # print(x.shape)
+        # x = x.view(x.shape[0],-1)
         x = self.Lin1(x)
         x = self.Lin2(x)
         return x
@@ -95,7 +96,7 @@ t.save(model.state_dict(),"model.pth")
 
 correctPred = 0
 totalPred = 0
-for dataIndx , (image,labels) in tq.tqdm(enumerate(train_loader),total=len(test_loader),desc=f"Epoch [{epoch}/{epochs}]:"):
+for dataIndx , (image,labels) in tq.tqdm(enumerate(test_loader),total=len(test_loader),desc=f"Epoch [{epoch}/{epochs}]:"):
 
     y_pred = model(image)
 
