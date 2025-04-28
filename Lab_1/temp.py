@@ -1,57 +1,46 @@
+import torch as tr
 import numpy as np
-import torch as torch
 
-'''
+size = 500
+X = tr.linspace(1,size+1,steps=size,dtype=tr.float)
+X = X / size
+h_0 = -50
+h_1 = 157
+h_2 = -290
+h_3 = 372
+h_4 = -128
 
-VVIPs
+H = tr.tensor([h_0,h_1,h_2,h_3,h_4],requires_grad=False,dtype=tr.float)
+H = H.permute(*tr.arange(H.ndim - 1, -1, -1))
+c_0 = -5
+c_1 = 15
+c_2 = 19
+c_3 = 32
+c_4 = 180
 
-normalizing x is very imp... so divide by 1000
+C = tr.tensor([c_0,c_1,c_2,c_3,c_4],requires_grad=False,dtype=tr.float)
+C = C.permute(*tr.arange(C.ndim - 1, -1, -1))
 
-ALWAYS keep inputs between [0,1] to avoid errors
-prioritize using matrix operations to do things
+lr = .2
+Shyama = tr.vstack([tr.ones(size),X,X**2,X**3,X**4])
+Shyama = Shyama.T # 500,5
 
-'''
+epochs = 6000
 
-size = 1000
-x = torch.linspace(1,1000,size,requires_grad=False)
-x = x / 1000
+Y_true = Shyama @ H
 
-h_0 = 105
-h_1 = 192
-h_2 = 157
-h_3 = 119
-
-
-H = torch.tensor([h_0,h_1,h_2,h_3],dtype=torch.float,requires_grad=False).reshape(4,1)
-
-C = torch.randint(0, 100, (4,1), dtype=torch.float, requires_grad=True)
-
-print(C.shape,H.shape)
-
-lr = 1e-4
-epochs = 5000
-Shyama = torch.vstack([torch.ones((size)),x,x**2,x**3])
-
-Shyama = torch.matmul(Shyama , Shyama.T)
-
-Shyam = torch.diag_embed(Shyama)
-
-print(Shyama.shape)
-
-for epoch in range(epochs):
-
-    loss = (C-H).T @ Shyama @ (C-H)
-
-    loss.backward()
-
-    with torch.no_grad():
-        C.data -= lr * C.grad
-
-    C.grad.zero_()
+for i in range(epochs):
     
-    print(loss)
+    Y_pred = Shyama @ C
 
-
-print(f"Final Learnt Values: c_0 : {C[0].item()}, c_1 : {C[1].item()}, c_2 : {C[2].item()}, c_3 : {C[3].item()}")
+    error = Y_pred - Y_true # 500,1
     
+    grad = lr * tr.clamp( Shyama.T  @ (2/size * error )  ,-1000,1000)
+    # print(grad.shape)
+    C = C - grad
 
+    if i % 1000 == 0:
+        # lr *= 0.35
+        print(f'Loss: {error.T @ error}')
+
+print(f'final values of C : {C}')

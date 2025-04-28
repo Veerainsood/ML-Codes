@@ -1,0 +1,9 @@
+1) Custom loss function and Autograd library usage (topics: 1-7 pytorch based)
+2) CNN
+3) Auto Encoders
+4) VAE, GAN
+5) RNN variants - Simple, Pre-built types: GRU and LSTM type cells
+6) Transformer - simple concept understanding level codes
+7) Next token prediction - simple concept understanding level codes
+8) Sklearn topics as we discussed in the lab
+9) Seaborn library plotting as we discussed in lab
